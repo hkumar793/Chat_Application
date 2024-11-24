@@ -7,8 +7,25 @@
 #include <unistd.h>
 #include <cstring>
 #include <sys/socket.h>
+#include <fstream>
+#include <fcntl.h>
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 
 using namespace std;
+int fd;
+
+string getDateTime() {
+    auto now = chrono::system_clock::now();
+    auto time = chrono::system_clock::to_time_t(now);
+    tm localTime;
+    localtime_r(&time, &localTime);  
+    stringstream dateTimeStream;
+    dateTimeStream << "[" << put_time(&localTime, "%Y-%m-%d %H:%M:%S") << "]";
+    return dateTimeStream.str();
+}
 
 void SendMsg(int socket) {
     string name;
@@ -22,11 +39,14 @@ void SendMsg(int socket) {
     send(socket, clientinfo.c_str(), clientinfo.length(), 0);
     cout << endl;
 
+    string filename=name+"_chat.txt";
+    fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
+
     while (true) {
         getline(cin, message);
         string msg = name + " : " + message;
 
-        if (containsSubstring(message, "fileupload") || containsSubstring(message, "fileshare")) {
+        if (containsSubstring(message, "fileupload") || containsSubstring(message, "fileshare") || containsSubstring(message, "filedownload")) {
             size_t firstColonPos = message.find(":");
             size_t secondColonPos = message.find(":", firstColonPos + 1);
 
@@ -39,7 +59,10 @@ void SendMsg(int socket) {
             else
                 sentuser = trim(message.substr(secondColonPos + 1));
 
-            file_command_handler(socket, name, command, filename, sentuser);
+            if(command == "filedownload")
+                file_download_handler(socket, name, command, filename);
+            else
+                file_command_handler(socket, name, command, filename, sentuser);
             continue;
         }
 
@@ -50,14 +73,28 @@ void SendMsg(int socket) {
         }
 
         if (message == "quit") {
+            return;
+        }
+
+        message=getDateTime()+" "+message+"\n";
+        write(fd, message.c_str(), message.size());
+        if (bytesSent == -1) {
+            cout << "Error sending message" << endl;
             break;
         }
+
+        // if (message == "quit") {
+        //     break;
+        // }
     }
     close(socket);
     exit(0);
 }
 
 void ReceiveMessage(int socket) {
+    // string filename=name+"_chat.txt";
+    // int fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
+
     char buffer[4096] = {0};
     int recvLength;
     while (true) {
@@ -75,8 +112,14 @@ void ReceiveMessage(int socket) {
         }
 
         else {
-            string msg(buffer, recvLength);
+            string msg(buffer, recvLength); 
             cout << msg << endl;
+
+            if (!(containsSubstring(msg, "!!!"))){
+                msg=getDateTime()+" "+msg+"\n";
+                write(fd, msg.c_str(), msg.size());
+            }
+
         }
     }
     close(socket);

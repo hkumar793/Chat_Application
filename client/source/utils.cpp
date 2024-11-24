@@ -10,7 +10,10 @@
 using namespace std;
 
 bool containsSubstring(const std::string &str, const std::string &substring) {
-    return str.find(substring) != std::string::npos;
+    if (str.empty() || substring.empty()) {
+        return false; 
+    }
+    return str.find(substring) != std::string::npos;  
 }
 
 string trim(const string &str) {
