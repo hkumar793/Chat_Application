@@ -10,7 +10,6 @@ struct ClientInfo {
     std::string username;
     std::string password;
     bool conn;
-    vector<string> groups;
 };
 
 void InteractWithClient(int clientSocket, std::vector<ClientInfo> &clients);

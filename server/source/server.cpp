@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "client_handler.h"
 #include "utils.h"
+#define BACKLOG 1024
 
 using namespace std;
 
@@ -28,7 +29,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if (listen(listenSocket, SOMAXCONN) == -1) {
+    if (listen(listenSocket, BACKLOG) == -1) {
         cout << "Listen failed" << endl;
         close(listenSocket);
         return 1;
@@ -70,13 +71,13 @@ int main(int argc, char *argv[]) {
                 close(clientSocket);
                 continue;
             } else {
-                string msg = "Successfully logged in!!!\n";
+                string msg = "Successfully logged in!!!!\n";
                 cout << username << " has joined the chat." << endl;
                 send(clientSocket, msg.c_str(), msg.length(), 0);
             }
         } else {
             cout << username << " has joined the chat." << endl;
-            string message = username + " has come online.\n";
+            string message = username + " has come online!!!!.\n";
 
             // Broadcast the new user message to all connected clients
             for (const auto &client : clients) {
@@ -84,7 +85,7 @@ int main(int argc, char *argv[]) {
                     send(client.socket, message.c_str(), message.length(), 0);
                 }
             }
-            string msg = "New user detected, saving password for future references!!!\n";
+            string msg = "New user detected, saving password for future references!!!!\n";
             send(clientSocket, msg.c_str(), msg.length(), 0);
         }
 

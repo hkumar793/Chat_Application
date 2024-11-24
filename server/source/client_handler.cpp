@@ -11,6 +11,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <algorithm>
+#define folder "files"
 
 using namespace std;
 
@@ -52,7 +53,9 @@ void commandExecution(string command, string sub_message, int clientSocket, stri
     // to upload file to the server
     else if (command == "fileupload") {
         size_t pos = sub_message.rfind(".");
-        string filename = sub_message.substr(0, pos) + "_" + username + "_" + getCurrentDateTime() + sub_message.substr(pos);
+        // string filename = sub_message.substr(0, pos) + "_" + username + "_" + getCurrentDateTime() + sub_message.substr(pos);
+        string filename = folder + string("/") + sub_message.substr(0, pos) + sub_message.substr(pos);
+
 
         int fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);  // Open the file
         if (fd < 0) {
@@ -68,7 +71,7 @@ void commandExecution(string command, string sub_message, int clientSocket, stri
                 write(fd, file_buffer, bytesRead - 3);
                 close(fd);
                 // cout << "File " << filename << " has been uploaded by " << username << endl;
-                string msg = "File upload complete.\n";
+                string msg = "File upload complete!!!!.\n";
                 send(clientSocket, msg.c_str(), msg.length(), 0);
                 return;
             }
@@ -80,6 +83,38 @@ void commandExecution(string command, string sub_message, int clientSocket, stri
             }
             memset(file_buffer, 0, sizeof(file_buffer));
         }
+    }
+
+    else if (command == "filedownload") {
+        cout<<sub_message<<endl;
+        size_t pos = sub_message.rfind(".");
+        // string filename = sub_message.substr(0, pos) + "_" + username + "_" + getCurrentDateTime() + sub_message.substr(pos);
+        string filename = folder + string("/") + sub_message.substr(0, pos) + sub_message.substr(pos);
+
+
+        int fd = open(filename.c_str(), O_RDONLY);  // Open the file
+        if (fd < 0) {
+            string msg = "File does not exist!!!!\n";
+            send(clientSocket, msg.c_str(), msg.length(), 0);
+            return;
+        }
+
+        size_t bytesRead;
+        char file_buffer[512] = {0};
+        while ((bytesRead = read(fd, file_buffer, sizeof(file_buffer))) > 0) {
+            int bytesSent = send(clientSocket, file_buffer, bytesRead, 0);
+            if (bytesSent == -1) {
+                cout << "Error sending file data" << endl;
+                close(fd); 
+                return;
+            }
+            memset(file_buffer, 0, sizeof(file_buffer));
+        }
+        string message = "###";
+        send(clientSocket, message.c_str(), message.length(), 0);
+        close(fd);
+
+        found=1;
     }
 
     // to share file to the client
@@ -111,6 +146,7 @@ void commandExecution(string command, string sub_message, int clientSocket, stri
             }
             send(sentuser_sock, file_buffer, sizeof(file_buffer), 0);
         }
+        found=1;
     }
 
     else {
@@ -125,7 +161,7 @@ void commandExecution(string command, string sub_message, int clientSocket, stri
         }
     }
     if (!found) {
-        string msg = "Invalid Command/User is not online\n";
+        string msg = "Invalid Command/User is not online!!!!.\n";
         send(clientSocket, msg.c_str(), msg.length(), 0);
     }
 }
@@ -155,31 +191,14 @@ void InteractWithClient(int clientSocket, vector<ClientInfo> &clients) {
             extra = (thirdColonPos != string::npos) ? trim(message.substr(thirdColonPos + 1)) : "";
         }
 
-        if (command == "creategroup") {
-            createGroup(sub_message, username, clients, clientSocket); 
-        } 
-        
-        else if (command == "addtogroup") {
-            addUserToGroup(sub_message, extra, clients, clientSocket);  
-        } 
-        
-        else if (command == "removefromgroup") {
-            removeUserFromGroup(sub_message, extra, clients, clientSocket);  
-        } 
-        
-        else if (command == "groupmsg") {
-            sendMessageToGroup(sub_message, extra, clients, clientSocket); 
-        }
-
-        else
-            commandExecution(command, sub_message, clientSocket, username, extra, clients);
+        commandExecution(command, sub_message, clientSocket, username, extra, clients);
     }
 
     // Handle disconnection of the client
     auto it = std::find_if(clients.begin(), clients.end(), [clientSocket](const ClientInfo &client) { return client.socket == clientSocket; });
     if (it != clients.end()) {
         cout << it->username << " has been disconnected" << endl;
-        string msg = "\n" + it->username + " has been disconnected";
+        string msg = "\n" + it->username + " has been disconnected!!!!";
         for (const auto &client : clients) {
             if (client.socket != clientSocket && client.conn) {
                 send(client.socket, msg.c_str(), msg.length(), 0);
