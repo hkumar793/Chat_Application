@@ -1,0 +1,13 @@
+File size: 10MB Clients: 10 Time: 1.030 seconds
+File size: 10MB Clients: 20 Time: 1.070 seconds
+File size: 10MB Clients: 30 Time: 1.054 seconds
+File size: 10MB Clients: 40 Time: 1.286 seconds
+File size: 10MB Clients: 50 Time: 1.224 seconds
+File size: 10MB Clients: 60 Time: 1.496 seconds
+
+File size: 20MB Clients: 10 Time: 1.024 seconds
+File size: 20MB Clients: 20 Time: 1.057 seconds
+File size: 20MB Clients: 30 Time: 1.056 seconds
+File size: 20MB Clients: 40 Time: 1.152 seconds
+File size: 20MB Clients: 50 Time: 1.127 seconds
+File size: 20MB Clients: 60 Time: 2.157 seconds
