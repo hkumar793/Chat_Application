@@ -1,10 +1,10 @@
 To start server execute following commands
-1   make
-2 ./server <port>
+1.   make
+2. ./server <port>
 
 To start client execute following commands
-1   make
-2 ./client <port>
+1.   make
+2. ./client <port>
 
 Various Commands
 1. all -> To broadcast the message to online users and syntax -> all:<message>.
