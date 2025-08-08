@@ -52,7 +52,6 @@ make
 
 - First-time users create a password.
 - Passwords are stored on the server.
-- Only one session per user is allowed.
 
 ---
 
